@@ -1,4 +1,4 @@
-// Unified arXiv adapter for Seer-AI
+// Unified arXiv adapter for Seer-ETL
 // Handles all arXiv RSS feeds: cs, stat, etc.
 import Parser from 'rss-parser';
 import type { ParsedItem } from '../types/adapter';

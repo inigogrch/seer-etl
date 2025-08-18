@@ -16,7 +16,7 @@ async function fetchHuggingFacePage(): Promise<string> {
   try {
     const response = await fetch(HUGGINGFACE_URL, {
       headers: {
-        'User-Agent': 'Seer-AI/1.0 (+https://seer-ai.app)',
+        'User-Agent': 'Seer-ETL/1.0 (+https://seer-etl.app)',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       }
     });
@@ -195,7 +195,7 @@ export async function fetchAndParse(): Promise<ParsedItem[]> {
                   source_slug: 'huggingface_papers', // Single feed adapter
         title: paper.title,
         url: paper.url,
-        content: '', // Leave empty - ingestion agent will scrape full content
+        content: '', // Empty to trigger IngestionAgent content enrichment from paper URL
         published_at: new Date().toISOString(), // Use current date since papers are daily trending
         author: paper.submitter !== 'Unknown' ? paper.submitter : undefined,
         image_url: undefined, // Will be extracted by ingestion agent

@@ -17,7 +17,7 @@ async function fetchGoogleResearchPage(): Promise<string> {
   try {
     const response = await fetch(GOOGLE_RESEARCH_URL, {
       headers: {
-        'User-Agent': 'Seer-AI/1.0 (+https://seer-ai.app)',
+        'User-Agent': 'Seer-ETL/1.0 (+https://seer-etl.app)',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.5',
         'Accept-Encoding': 'gzip, deflate',

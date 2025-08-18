@@ -171,7 +171,7 @@ flowchart TD
 
 ## 7. Example Directory Layout
 ```plain-text
-/seer-ai
+/seer-etl
 ├─ src/
 │  ├─ agents/           # OpenAI agents
 │  │  ├ ingestionAgent.ts

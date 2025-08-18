@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-This is **Seer-AI**, an agentic content ingestion and recommendation system built with Next.js, TypeScript, OpenAI Agents SDK, and Supabase.
+This is **Seer-ETL**, an intelligent content ingestion and extraction pipeline built with Next.js, TypeScript, OpenAI Agents SDK, and Supabase.
 
 ### Core Agentic Workflow
 The system follows a modular agentic architecture: **Ingest → Classify → Retrieve → Summarize → Feedback**

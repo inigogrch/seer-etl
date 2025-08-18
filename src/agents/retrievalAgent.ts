@@ -1,4 +1,4 @@
-// RetrievalAgent stub for Seer-AI MVP
+// RetrievalAgent stub for Seer-ETL
 // @cursor TASK: Implement retrieval and ranking logic
 
 export class RetrievalAgent {

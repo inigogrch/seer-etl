@@ -234,7 +234,7 @@ export const fetchAdapterDataExecute = async ({ adapterName }: { adapterName: st
     
     // Dynamically import the adapter module
     // Use absolute path from project root to avoid path resolution issues
-    const projectRoot = '/Users/benjogerochi/seer-ai-app';
+    const projectRoot = '/Users/benjogerochi/seer-etl';
     const adapterPath = path.join(projectRoot, 'src', 'adapters', adapterName);
     const adapter = await import(adapterPath);
     
@@ -303,7 +303,7 @@ export const fetchURLContentExecute = async ({ url }: { url: string }) => {
     } else {
       return {
         ...baseHeaders,
-        'User-Agent': 'Mozilla/5.0 (compatible; SeerAI/1.0; +https://seerai.app)'
+        'User-Agent': 'Mozilla/5.0 (compatible; SeerETL/1.0; +https://seer-etl.app)'
       };
     }
   };
@@ -448,6 +448,110 @@ function extractOpenAIContent(dom: any): { content: string; title: string } {
   };
 }
 
+/**
+ * Enhanced content cleaning function to remove HTML artifacts, excess whitespace, and unwanted patterns
+ * Includes specific cleaning rules for Anthropic and HuggingFace content
+ */
+function cleanExtractedContent(content: string): string {
+  if (!content) return '';
+  
+  // Remove HTML entities and remnants
+  content = content
+    // Clean up HTML entities
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/')
+    .replace(/&[#\w]+;/g, '') // Remove any remaining HTML entities
+    
+    // Remove HTML tag remnants that might have been missed
+    .replace(/<[^>]*>/g, '')
+    .replace(/\[&hellip;\]/g, '...')
+    
+    // Clean up markdown artifacts and excessive formatting
+    .replace(/\*{3,}/g, '**') // Reduce excessive asterisks
+    .replace(/_{3,}/g, '__')  // Reduce excessive underscores
+    .replace(/-{4,}/g, '---') // Reduce excessive dashes
+    .replace(/={4,}/g, '===') // Reduce excessive equals
+    
+    // Anthropic-specific cleaning
+    .replace(/^(Anthropic|Claude|Constitutional AI|AI Safety|Research|Safety|Policy|Alignment)\s*$/gmi, '') // Remove standalone category words
+    .replace(/\b(Anthropic Team|Research Team|Policy Team|Safety Team)\b[^\n]*$/gmi, '') // Remove team attribution lines
+    .replace(/^(Published|Updated|Last modified)\s+on\s+[^\n]*$/gmi, '') // Remove publication dates
+    .replace(/^(Tags?|Categories?|Topics?):\s*[^\n]*$/gmi, '') // Remove tag/category lines
+    .replace(/^(Related|See also|Further reading):\s*[^\n]*$/gmi, '') // Remove related content sections
+    
+    // HuggingFace-specific cleaning
+    .replace(/^(Models citing this paper|Datasets citing this paper|Spaces)\s*\d*\s*$/gmi, '') // Remove citation counters
+    .replace(/^(Submitted|Published|Updated)\s+\d+\s+(day|week|month|year)s?\s+ago\s*$/gmi, '') // Remove relative dates
+    .replace(/^\d+\s+(like|upvote|downvote|star|fork)s?\s*$/gmi, '') // Remove interaction counts
+    .replace(/^(Repository|Paper|Demo|Spaces?|Dataset):\s*[^\n]*$/gmi, '') // Remove metadata links
+    .replace(/^(Abstract|Summary|TL;DR):\s*/gmi, '') // Remove abstract labels but keep content
+    .replace(/^(Authors?|Affiliation|Institution):\s*[^\n]*$/gmi, '') // Remove author info lines
+    .replace(/^(Code|Implementation|Usage|Example):\s*```[^`]*```\s*$/gms, '') // Remove code blocks
+    .replace(/^(Hugging Face|🤗)\s*[^\n]*$/gmi, '') // Remove HF branding lines
+    
+    // Remove common navigation and UI text patterns
+    .replace(/^(Skip to content|Jump to navigation|Main menu|Search|Login|Register|Subscribe|Share|Print|Save|Email)\s*$/gmi, '')
+    .replace(/\b(Click here|Read more|Learn more|View all|Show more|Load more|Explore more)\b/gi, '')
+    .replace(/\b(Previous|Next|Back to top|Return to|Go back)\b\s*$/gmi, '')
+    .replace(/^(Menu|Navigation|Breadcrumb|Home|About|Contact|Support|Help|FAQ)\s*$/gmi, '')
+    
+    // Clean up social media and sharing remnants
+    .replace(/\b(Tweet|Share on|Follow us|Like us on|Subscribe to|Connect with)\b[^\n]*$/gmi, '')
+    .replace(/\b(Facebook|Twitter|LinkedIn|Instagram|YouTube|GitHub|Discord|Slack)\s*(icon|link|button)?\b/gi, '')
+    .replace(/^(Share|Social|Follow|Connect):\s*[^\n]*$/gmi, '')
+    
+    // Remove advertising and promotion text
+    .replace(/\b(Advertisement|Sponsored|Promoted|Ad\s*$)/gmi, '')
+    .replace(/\[?(Advertisement|Sponsored|Promoted|Ad)\]?/gi, '')
+    .replace(/^(Sponsored by|In partnership with|Powered by)\s*[^\n]*$/gmi, '')
+    
+    // Clean up comment and interaction artifacts
+    .replace(/\b(\d+\s*)?(Comments?|Replies|Responses|Reviews)\s*$/gmi, '')
+    .replace(/^(Leave a comment|Post a comment|Add comment|Write a review).*$/gmi, '')
+    .replace(/^(Sign in to comment|Login to reply|Register to comment).*$/gmi, '')
+    
+    // Remove newsletter and subscription prompts
+    .replace(/\b(Newsletter|Subscribe|Sign up|Email updates|Get notified|Stay updated)[^\n]*$/gmi, '')
+    .replace(/^(Join our|Subscribe to our|Get the latest)\s*[^\n]*$/gmi, '')
+    
+    // Remove footer and legal content
+    .replace(/^(Copyright|Terms|Privacy|Legal|Disclaimer|All rights reserved)[^\n]*$/gmi, '')
+    .replace(/^©\s*\d{4}[^\n]*$/gmi, '') // Copyright lines
+    
+    // Remove empty brackets, parentheses, and common artifacts
+    .replace(/\[\s*\]/g, '') // Empty brackets
+    .replace(/\(\s*\)/g, '') // Empty parentheses
+    .replace(/\{\s*\}/g, '') // Empty braces
+    .replace(/^\s*[\|\-\+\=\*\#]+\s*$/gm, '') // Lines with just symbols
+    
+    // Clean up excessive whitespace and line breaks
+    .replace(/[ \t]+/g, ' ')        // Multiple spaces/tabs to single space
+    .replace(/\n\s*\n\s*\n+/g, '\n\n') // Multiple line breaks to double
+    .replace(/^\s+|\s+$/g, '')      // Trim start and end
+    .replace(/\n\s+/g, '\n')        // Remove indentation on new lines
+    
+    // Remove lines that are just punctuation or very short
+    .split('\n')
+    .filter(line => {
+      const trimmed = line.trim();
+      // Keep lines with actual content (more than 3 chars and contains letters)
+      return trimmed.length > 3 && /[a-zA-Z]/.test(trimmed) && !/^[^\w]*$/.test(trimmed);
+    })
+    .join('\n')
+    
+    // Final cleanup
+    .replace(/\n{3,}/g, '\n\n')     // Ensure max 2 consecutive line breaks
+    .replace(/^\n+|\n+$/g, '')      // Remove leading/trailing newlines
+    .trim();
+  
+  return content;
+}
+
 export const extractMainContentExecute = async ({ html, url }: { html: string; url: string | null }) => {
   // Create a DOM from the HTML
   const dom = new JSDOM(html, { url: url || undefined });
@@ -485,13 +589,34 @@ export const extractMainContentExecute = async ({ html, url }: { html: string; u
     // Convert HTML content to clean text using Turndown
     const turndownService = new TurndownService({
       headingStyle: 'atx',
-      codeBlockStyle: 'fenced'
+      codeBlockStyle: 'fenced',
+      bulletListMarker: '-',
+      emDelimiter: '*'
     });
     
     // Configure turndown to remove unwanted elements
-    turndownService.remove(['script', 'style', 'nav', 'footer', 'aside']);
+    turndownService.remove(['script', 'style', 'nav', 'footer', 'aside', 'header', 'form', 'button', 'noscript']);
     
-    const textContent = turndownService.turndown(article.content || '');
+    // Remove additional unwanted elements that might contain ads or navigation
+    turndownService.addRule('removeUnwanted', {
+      filter: ['iframe', 'embed', 'object', 'video', 'audio'],
+      replacement: () => ''
+    });
+    
+    // Clean up common navigation and UI elements
+    turndownService.addRule('removeNavigation', {
+      filter: (node) => {
+        const className = node.className || '';
+        const id = node.id || '';
+        return /nav|menu|sidebar|breadcrumb|pagination|social|share|comment|ad-|advertisement/i.test(className + ' ' + id);
+      },
+      replacement: () => ''
+    });
+    
+    let textContent = turndownService.turndown(article.content || '');
+    
+    // Enhanced regex-based content cleaning
+    textContent = cleanExtractedContent(textContent);
     
     return {
       success: true,

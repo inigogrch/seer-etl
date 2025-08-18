@@ -1,6 +1,6 @@
-# Seer-AI MVP Scaffold
+# Seer-ETL
 
-This is the baseline scaffold for the Seer-AI MVP, following the agentic system design and adapter specs. All modules are stubbed with type safety, minimal boilerplate, and @cursor TASK: breadcrumbs for rapid iteration.
+This is the Seer-ETL pipeline, an intelligent content ingestion and extraction system. Built following agentic system design and adapter specs with type safety, minimal boilerplate, and @cursor TASK: breadcrumbs for rapid iteration.
 
 ## Getting Started
 

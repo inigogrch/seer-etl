@@ -40,7 +40,7 @@ async function scrapeStoriesFromDigest(digestUrl: string, digestDate: Date): Pro
   try {
     const response = await fetch(digestUrl, {
       headers: {
-        'User-Agent': 'Seer-AI/1.0 (+https://seer-ai.app)'
+        'User-Agent': 'Seer-ETL/1.0 (+https://seer-etl.app)'
       }
     });
     

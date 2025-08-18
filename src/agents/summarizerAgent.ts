@@ -1,4 +1,4 @@
-// SummarizerAgent stub for Seer-AI MVP
+// SummarizerAgent stub for Seer-ETL
 // @cursor TASK: Implement summarization and chat response logic
 
 export class SummarizerAgent {
