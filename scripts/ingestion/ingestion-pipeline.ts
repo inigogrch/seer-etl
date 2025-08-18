@@ -339,20 +339,21 @@ async function filterExistingItems(
 }
 
 /**
- * Filter out articles published in 2022 or earlier
+ * Filter to only include articles published in 2025
  */
 function filterByPublishDate(items: ParsedItem[]): { filteredItems: ParsedItem[]; oldItemsCount: number } {
-  const cutoffDate = new Date('2023-01-01T00:00:00Z');
+  const startOf2025 = new Date('2025-01-01T00:00:00Z');
+  const endOf2025 = new Date('2025-12-31T23:59:59Z');
   
   const filteredItems = items.filter(item => {
     const publishDate = new Date(item.published_at);
-    return publishDate >= cutoffDate;
+    return publishDate >= startOf2025 && publishDate <= endOf2025;
   });
   
   const oldItemsCount = items.length - filteredItems.length;
   
   if (oldItemsCount > 0) {
-    logger.info(`Filtered out ${oldItemsCount} articles from 2022 or earlier, keeping ${filteredItems.length} recent articles`);
+    logger.info(`Filtered out ${oldItemsCount} articles not from 2025, keeping ${filteredItems.length} 2025 articles`);
   }
   
   return { filteredItems, oldItemsCount };

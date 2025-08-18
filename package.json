@@ -1,5 +1,5 @@
 {
-  "name": "seer-ai-app",
+  "name": "seer-etl",
   "version": "0.1.0",
   "private": true,
   "scripts": {

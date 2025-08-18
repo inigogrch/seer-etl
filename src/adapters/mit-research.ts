@@ -1,4 +1,4 @@
-// Unified MIT News adapter for Seer-AI
+// Unified MIT News adapter for Seer-ETL
 // Handles MIT News RSS feeds: research, data, AI
 import Parser from 'rss-parser';
 import type { ParsedItem } from '../types/adapter';
